@@ -3,6 +3,7 @@ var app = angular.module("MontadorDeGrades", []);
 app.controller("MontadorController", function($scope, $http) {
 
     $scope.escolhidas = disciplinasEscolhidas;
+    $scope.periodo = periodo;
     $scope.ocultar = true;
     $scope.todosResultados = [];
     $scope.resultados = [];
@@ -88,7 +89,13 @@ app.controller("MontadorController", function($scope, $http) {
     }
 
     $scope.removerDisciplina = function(d) {
+        disciplinasEscolhidas[d].escolhida = false;
         disciplinasEscolhidas.splice(d, 1);
+        atualizarGrade();
+    }
+
+    $scope.atualizar = function() {
+        periodo = $scope.periodo;
         atualizarGrade();
     }
 

@@ -112,31 +112,36 @@ var normalizarTexto = function(texto) {
 
 var todasDisciplinas = processarDisciplinas(todasDisciplinas);
 var disciplinasEscolhidas = [];
+var periodo = "diatodo"
 
 var atualizarHash = function() {
     var ids = $.map(disciplinasEscolhidas, function(el, i) {
         return el.id;
     });
-    window.location.hash = ids.join(',');
+    window.location.hash = periodo + ';' + ids.join(',');
 }
 
 var resgatarHash = function() {
-    var ids = window.location.hash.substring(1).split(',');
-    disciplinasEscolhidas.length = 0;
-    for (var i in ids) {
-        var d = todasDisciplinas.filter(function(d) {return d.id==ids[i]})[0];
-        if (d) {
-            disciplinasEscolhidas.push(d);
-            d.escolhida = true;
+    var hashed = window.location.hash.substring(1);
+    if (hashed.length) {
+        var afterSplit = hashed.split(';');
+        periodo = afterSplit[0];
+        var ids = afterSplit[1].split(',');
+        disciplinasEscolhidas.length = 0;
+        for (var i in ids) {
+            var d = todasDisciplinas.filter(function(d) {return d.id==ids[i]})[0];
+            if (d) {
+                disciplinasEscolhidas.push(d);
+                d.escolhida = true;
+            }
         }
+        atualizarGrade();
     }
-    atualizarGrade();
 }
 
 var atualizarGrade = function() {
     atualizarHash();
-
-    $('.grade').fullCalendar('removeEvents');
+    atualizarPeriodo();
 
     for (var i in disciplinasEscolhidas) {
         var d = disciplinasEscolhidas[i];
@@ -166,4 +171,21 @@ var atualizarGrade = function() {
             });
         }
     }
+
+}
+
+var atualizarPeriodo = function() {
+    var minTime = '8:00:00',
+        maxTime = '23:30:00';
+
+    if (periodo == "noite")
+        minTime = '19:00:00';
+
+    if (periodo == "manha")
+        maxTime = '19:00:00';
+
+    options.minTime = minTime;
+    options.maxTime = maxTime;
+    $('.grade').fullCalendar('destroy');
+    $('.grade').fullCalendar(options);
 }
