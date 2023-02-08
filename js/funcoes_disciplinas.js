@@ -118,15 +118,15 @@ var atualizarHash = function() {
     var ids = $.map(disciplinasEscolhidas, function(el, i) {
         return el.id;
     });
-    window.location.hash = periodo + ';' + ids.join(',');
+    window.location.hash = ids.join(',') + ';' + periodo;
 }
 
 var resgatarHash = function() {
     var hashed = window.location.hash.substring(1);
     if (hashed.length) {
         var afterSplit = hashed.split(';');
-        periodo = afterSplit[0];
-        var ids = afterSplit[1].split(',');
+        var ids = afterSplit[0].split(',');
+        periodo = afterSplit[1];
         disciplinasEscolhidas.length = 0;
         for (var i in ids) {
             var d = todasDisciplinas.filter(function(d) {return d.id==ids[i]})[0];
