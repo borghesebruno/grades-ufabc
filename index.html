@@ -128,20 +128,27 @@
             <div class="alert alert-info no-print">
               Todos os créditos para o original: <a href="https://rafael-telles.github.io/grades-ufabc/#" target="_blank" rel="noopener noreferrer">https://rafael-telles.github.io/grades-ufabc/</a>
             </div>
-            <div class="form-group">
-                <label>Período:</label>
-                <label class="radio-inline">
-                    <input name="periodo" ng-model="periodo" value="diatodo" ng-change="atualizar()" type="radio" aria-label="Dia todo">
-                    Dia todo
-                </label>
-                <label class="radio-inline">
-                    <input name="periodo" ng-model="periodo" value="manha" ng-change="atualizar()" type="radio" aria-label="Manhã">
-                    Manhã
-                </label>
-                <label class="radio-inline">
-                    <input name="periodo" ng-model="periodo" value="noite" ng-change="atualizar()" type="radio" aria-label="Noite">
-                    Noite
-                </label>
+            <div class="form-group col-xs-12">
+                <span>
+                    <label>Período:</label>
+                    <label class="radio-inline">
+                        <input name="periodo" ng-model="periodo" value="diatodo" ng-change="atualizar()" type="radio" aria-label="Dia todo">
+                        Dia todo
+                    </label>
+                    <label class="radio-inline">
+                        <input name="periodo" ng-model="periodo" value="manha" ng-change="atualizar()" type="radio" aria-label="Manhã">
+                        Manhã
+                    </label>
+                    <label class="radio-inline">
+                        <input name="periodo" ng-model="periodo" value="noite" ng-change="atualizar()" type="radio" aria-label="Noite">
+                        Noite
+                    </label>
+                </span>
+                <span style="float:right;">
+                    <label class="checkbox">
+                        <input type="checkbox">Semana única
+                    </label>
+                </span>
             </div>
             <div class="grade-container col-xs-6">
                 <h3>Semana A</h3>
