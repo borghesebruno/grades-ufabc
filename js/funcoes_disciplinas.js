@@ -8,10 +8,15 @@ var processarDisciplinas = function (ds) {
 var completarDisciplina = function(id, d) {
     var patt = /(.*) (\w+(?=-))-(\w+) \((.*)\)/;
     var match = patt.exec(d.nome);
-    d.nome = match[1];
+    d.nomeSimples = match[1];
     d.turmas = [match[2]];
     d.periodo = match[3];
     d.campus = match[4];
+    var turma = d.nomeSimples+' '+
+        d.turmas[0]+'-'+
+        (d.periodo=="Matutino" ? "diurno" : "noturno")+
+        ' ('+(d.campus=="São Bernardo" ? "São Bernardo do Campo" : d.campus)+')';
+    d.turma = turmasSalas[turma];
     d.contagemMatriculas = contagemMatriculas[d.id] || 0;
     d.contagemMatriculasIngressantes = contagemMatriculasIngressantes[d.id] || 0;
     for (var i in d.horarios) {
@@ -23,7 +28,7 @@ var completarDisciplina = function(id, d) {
     }
 
     d.sigla = "";
-    var partes = d.nome.split(" ");
+    var partes = d.nomeSimples.split(" ");
     for (var i in partes) {
         var caractere = partes[i].charAt(0);
         if (caractere == caractere.toUpperCase()) {
@@ -31,7 +36,7 @@ var completarDisciplina = function(id, d) {
         }
     }
 
-    var descParts = [d.codigo, d.nome, d.sigla, d.periodo, d.campus, d.turmas, d.horarios.map(function(h) {return nomeDoDia(h.semana); })];
+    var descParts = [d.codigo, d.nomeSimples, d.sigla, d.periodo, d.campus, d.turmas, d.horarios.map(function(h) {return nomeDoDia(h.semana); })];
 
     descParts = [].concat.apply([], descParts);
     d.descricao = normalizarTexto(descParts.join(' ').toUpperCase());
@@ -112,13 +117,14 @@ var normalizarTexto = function(texto) {
 
 var todasDisciplinas = processarDisciplinas(todasDisciplinas);
 var disciplinasEscolhidas = [];
-var periodo = "diatodo"
+var periodo = "diatodo";
+var somenteQuinzenaAtual = false;
 
 var atualizarHash = function() {
     var ids = $.map(disciplinasEscolhidas, function(el, i) {
         return el.id;
     });
-    window.location.hash = ids.join(',') + ';' + periodo;
+    window.location.hash = ids.join(',') + ';' + periodo + ';' + (somenteQuinzenaAtual ? 'atual' : 'ambas');
 }
 
 var resgatarHash = function() {
@@ -126,7 +132,6 @@ var resgatarHash = function() {
     if (hashed.length) {
         var afterSplit = hashed.split(';');
         var ids = afterSplit[0].split(',');
-        periodo = afterSplit[1];
         disciplinasEscolhidas.length = 0;
         for (var i in ids) {
             var d = todasDisciplinas.filter(function(d) {return d.id==ids[i]})[0];
@@ -135,8 +140,36 @@ var resgatarHash = function() {
                 d.escolhida = true;
             }
         }
+        periodo = afterSplit[1];
+        somenteQuinzenaAtual = afterSplit[2] == "atual";
         atualizarGrade();
     }
+}
+
+var numeroDoDia = {
+    "segunda": 1,
+    "terça": 2,
+    "quarta": 3,
+    "quinta": 4,
+    "sexta": 5,
+    "sabádo": 6
+};
+var salasRegex = /(.*) das (\d\d:\d\d) às \d\d:\d\d, sala (.*(?=,)), (.*)/;
+var encontrarSala = function(turma, salas) {
+    if (salas == null || salas.length == 0) return '';
+    for (let sala of salas) {
+        var dia = sala[1];
+        var hora = sala[2];
+        var salao = sala[3];
+        var semana = sala[4];
+        if (numeroDoDia[dia]==turma.semana &&
+           turma.horas[0]==hora &&
+           semana==turma.periodicidade_extenso.replace(' - ','').replace('(','').replace(')','')
+        ) {
+            return salao;
+        }
+    }
+    return '';
 }
 
 var atualizarGrade = function() {
@@ -145,6 +178,13 @@ var atualizarGrade = function() {
 
     for (var i in disciplinasEscolhidas) {
         var d = disciplinasEscolhidas[i];
+        var turma = d.turma;
+        var salas = [];
+        if (turma["TEORIA"] != "0")
+            salas = salas.concat(turma["TEORIA"].split(" , "));
+        if (turma["PRÁTICA"] != "0")
+            salas = salas.concat(turma["PRÁTICA"].split(" , "));
+        var salasMatches = salas.map(function(sala){return salasRegex.exec(sala);});
 
         for (var j in d.horarios) {
             var h = d.horarios[j];
@@ -160,18 +200,19 @@ var atualizarGrade = function() {
                 .seconds(0)
                 .toISOString();
             var grade = $('.grade');
-            if (h.periodicidade_extenso === " - quinzenal (I)") grade = $("#grade-a");
-            else if (h.periodicidade_extenso === " - quinzenal (II)") grade = $("#grade-b");
+            if (h.periodicidade_extenso === " - quinzenal (I)")
+                grade = $("#grade-a");
+            else if (h.periodicidade_extenso === " - quinzenal (II)")
+                grade = $("#grade-b");
             grade.fullCalendar('renderEvent', {
-                title: d.sigla,
-                url: linkHelp(d),
+                title: d.sigla + "\n\r" + encontrarSala(h, salasMatches),
+                //url: linkHelp(d),
                 start: inicio,
                 end: fim,
                 color: gerarCor(i)
             });
         }
     }
-
 }
 
 var atualizarPeriodo = function() {
