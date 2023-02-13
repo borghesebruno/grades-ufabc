@@ -20,9 +20,8 @@
     <script src="https://matricula.ufabc.edu.br/cache/contagemMatriculas.js"></script>
     <script src="https://matricula.ufabc.edu.br/cache/contagemMatriculasIngressantes.js"></script>
 
+    <script src="js/turmas_salas_2023_1.js"></script>
     <script src="js/funcoes_disciplinas.js"></script>
-    <script src="js/integracao_help.js"></script>
-    <script src="js/xml2json.min.js"></script>
     <script src="js/controller.js"></script>
 
     <style>
@@ -55,6 +54,9 @@
     .fc-title {
         font-size: 1.5em;
         text-align: center;
+    }
+    div.fc-slats > table > tbody > tr {
+        height: 30px;
     }
     .lista-disciplinas a {
         text-decoration: none;
@@ -128,27 +130,34 @@
             <div class="alert alert-info no-print">
               Todos os créditos para o original: <a href="https://rafael-telles.github.io/grades-ufabc/#" target="_blank" rel="noopener noreferrer">https://rafael-telles.github.io/grades-ufabc/</a>
             </div>
-            <div class="form-group">
-                <label>Período:</label>
-                <label class="radio-inline">
-                    <input name="periodo" ng-model="periodo" value="diatodo" ng-change="atualizar()" type="radio" aria-label="Dia todo">
-                    Dia todo
-                </label>
-                <label class="radio-inline">
-                    <input name="periodo" ng-model="periodo" value="manha" ng-change="atualizar()" type="radio" aria-label="Manhã">
-                    Manhã
-                </label>
-                <label class="radio-inline">
-                    <input name="periodo" ng-model="periodo" value="noite" ng-change="atualizar()" type="radio" aria-label="Noite">
-                    Noite
-                </label>
+            <div class="form-group col-xs-12">
+                <span>
+                    <label>Período:</label>
+                    <label class="radio-inline">
+                        <input name="periodo" ng-model="periodo" value="diatodo" ng-change="atualizar()" type="radio" aria-label="Dia todo">
+                        Dia todo
+                    </label>
+                    <label class="radio-inline">
+                        <input name="periodo" ng-model="periodo" value="manha" ng-change="atualizar()" type="radio" aria-label="Manhã">
+                        Manhã
+                    </label>
+                    <label class="radio-inline">
+                        <input name="periodo" ng-model="periodo" value="noite" ng-change="atualizar()" type="radio" aria-label="Noite">
+                        Noite
+                    </label>
+                </span>
+                <span style="float:right;">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" ng-model="somenteQuinzenaAtual" ng-change="atualizar()">Somente Quinzena Atual
+                    </label>
+                </span>
             </div>
-            <div class="grade-container col-xs-6">
-                <h3>Semana A</h3>
+            <div class="grade-container col-xs-6" ng-show="!somenteQuinzenaAtual || (quinzena == 1)">
+                <h4>Semana I</h4>
                 <div class="grade" id='grade-a' data-semana='A'></div>
             </div>
-            <div class="grade-container col-xs-6">
-                <h3>Semana B</h3>
+            <div class="grade-container col-xs-6" ng-show="!somenteQuinzenaAtual || (quinzena == 0)">
+                <h4>Semana II</h4>
                 <div class="grade" id='grade-b' data-semana='B'></div>
             </div>
         </div>
@@ -157,7 +166,7 @@
             <tr ng-repeat="disciplina in escolhidas">
                 <td style='background: {{ gerarCor($index) }}; width: 32px'></td>
                 <td>{{ ::disciplina.codigo }}</td>
-                <td><a href="{{ linkHelp(disciplina) }}" target="_blank">{{ ::disciplina.nome }}</a> - {{ ::disciplina.turmas.join(', ') }} ({{ ::disciplina.campus }})</td>
+                <td><a href="{{ ::linkHelp(disciplina) }}" target="_blank">{{ ::disciplina.nomeSimples }}</a> - {{ ::disciplina.turmas.join(', ') }} ({{ ::disciplina.campus }})</td>
                 <td style="width: 18px;"><a ng-click="removerDisciplina($index)"><span class="no-print glyphicon glyphicon-remove"></span></a>
                 </td>
             </tr>
@@ -165,7 +174,6 @@
     </div>
 
     <div id="myModal" class="no-print modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -207,7 +215,7 @@
                                     </td>
                                     <td>{{ ::disciplina.codigo }}</td>
                                     <td>{{ ::disciplina.sigla }}</td>
-                                    <td><a target="_blank" href="{{ ::linkHelp(disciplina) }}">{{ ::disciplina.nome }}</a>
+                                    <td><a target="_blank" href="{{ ::linkHelp(disciplina) }}">{{ ::disciplina.nomeSimples }}</a>
                                     </td>
                                     <td>{{ ::disciplina.contagemMatriculas + ' / ' + disciplina.vagas }}</td>
                                     <td>{{ ::disciplina.tpi.join('-') }}</td>

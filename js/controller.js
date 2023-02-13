@@ -1,9 +1,10 @@
 var app = angular.module("MontadorDeGrades", []);
 
 app.controller("MontadorController", function($scope, $http) {
-
+    $scope.quinzena = moment().week() % 2 == 0;
     $scope.escolhidas = disciplinasEscolhidas;
     $scope.periodo = periodo;
+    $scope.somenteQuinzenaAtual = somenteQuinzenaAtual;
     $scope.ocultar = true;
     $scope.todosResultados = [];
     $scope.resultados = [];
@@ -62,7 +63,7 @@ app.controller("MontadorController", function($scope, $http) {
     };
 
     $scope.linkHelp = function(d) {
-        return linkHelp(d);
+        //return linkHelp(d);
     }
 
     $scope.gerarCor = function(i) {
@@ -96,6 +97,7 @@ app.controller("MontadorController", function($scope, $http) {
 
     $scope.atualizar = function() {
         periodo = $scope.periodo;
+        somenteQuinzenaAtual = $scope.somenteQuinzenaAtual;
         atualizarGrade();
     }
 
