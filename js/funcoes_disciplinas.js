@@ -124,11 +124,18 @@ var atualizarHash = function() {
     var ids = $.map(disciplinasEscolhidas, function(el, i) {
         return el.id;
     });
-    window.location.hash = ids.join(',') + ';' + periodo + ';' + (somenteQuinzenaAtual ? 'atual' : 'ambas');
+    var hash = ids.join(',') + ';' + periodo + ';' + (somenteQuinzenaAtual ? 'atual' : 'ambas');
+    window.location.hash = hash;
+    if (localStorageAvailable()) {
+        localStorage.setItem("hash", hash);
+    }
 }
 
 var resgatarHash = function() {
     var hashed = window.location.hash.substring(1);
+    if (!hashed.length && localStorageAvailable()) {
+        hashed = localStorage.getItem("hash");
+    }
     if (hashed.length) {
         var afterSplit = hashed.split(';');
         var ids = afterSplit[0].split(',');
